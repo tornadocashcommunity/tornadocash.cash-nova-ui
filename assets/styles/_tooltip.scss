@@ -1,0 +1,78 @@
+.tooltip {
+  max-width: 20.8rem;
+  z-index: $zIndex-7;
+  .tooltip-inner {
+    padding: 1.2rem;
+    font-weight: $font-weight-medium;
+    font-size: 1.2rem;
+    line-height: 1.34;
+    color: $color-white;
+    background-color: $color-black;
+    border-radius: 0.4rem;
+  }
+  .tooltip-arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    position: absolute;
+    margin: 0.5rem;
+    border-color: $color-black;
+    z-index: $zIndex-1;
+  }
+  &[x-placement^='top'] {
+    margin-bottom: 0.5rem;
+
+    .tooltip-arrow {
+      border-width: 0.5rem 0.5rem 0 0.5rem;
+      border-left-color: $color-transparent;
+      border-right-color: $color-transparent;
+      border-bottom-color: $color-transparent;
+      bottom: -0.5rem;
+      left: calc(50% - 0.5rem);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+  &[x-placement^='bottom'] {
+    margin-top: 0.5rem;
+
+    .tooltip-arrow {
+      border-width: 0 0.5rem 0.5rem 0.5rem;
+      border-left-color: $color-transparent;
+      border-right-color: $color-transparent;
+      border-top-color: $color-transparent;
+      top: -0.5rem;
+      left: calc(50% - 0.5rem);
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+  &[x-placement^='right'] {
+    margin-left: 0.5rem;
+
+    .tooltip-arrow {
+      border-width: 0.5rem 0.5rem 0.5rem 0;
+      border-left-color: $color-transparent;
+      border-top-color: $color-transparent;
+      border-bottom-color: $color-transparent;
+      left: -0.5rem;
+      top: calc(50% - 0.5rem);
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+  &[x-placement^='left'] {
+    margin-right: 0.5rem;
+
+    .tooltip-arrow {
+      border-width: 0.5rem 0 0.5rem 0.5rem;
+      border-top-color: $color-transparent;
+      border-right-color: $color-transparent;
+      border-bottom-color: $color-transparent;
+      right: -0.5rem;
+      top: calc(50% - 0.5rem);
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+}

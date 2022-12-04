@@ -1,0 +1,5 @@
+export enum GasPriceMutation {
+  SET_BASE_FEE = 'SET_BASE_FEE',
+  SET_GAS_PRICES = 'SET_GAS_PRICES',
+  SET_GAS_PARAMS = 'SET_GAS_PARAMS',
+}

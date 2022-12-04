@@ -1,0 +1,11 @@
+export * from './ConnectModal'
+export * from './AccountModal'
+export * from './SettingsModal'
+
+export { default as BackupModal } from './BackupModal.vue'
+export { default as SuccessModal } from './SuccessModal.vue'
+export { default as ContinueModal } from './ContinueModal.vue'
+export { default as MergeInputsModal } from './MergeInputsModal.vue'
+export { default as ConfirmationModal } from './ConfirmationModal.vue'
+export { default as ChangeAccountModal } from './ChangeAccountModal.vue'
+export { default as ElementChooserModal } from './ElementChooserModal.vue'

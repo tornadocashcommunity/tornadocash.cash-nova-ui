@@ -1,0 +1,83 @@
+@mixin animation-full-rotate {
+  @keyframes animation-full-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+@mixin animation-full-rotate-negative {
+  @keyframes animation-full-rotate-negative {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(-360deg);
+    }
+  }
+}
+
+@mixin animation-walk {
+  @keyframes animation-walk {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
+}
+
+@mixin animation-from-invisible {
+  @keyframes animation-from-invisible {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}
+
+@mixin animation-transform-line {
+  @keyframes animation-transform-line {
+    0% {
+      opacity: 0;
+      transform: translateX(-20rem);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+@mixin stroke-spacing-top {
+  @keyframes stroke-spacing-top {
+    0% {
+      stroke-dashoffset: 2000;
+    }
+    50% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -2000;
+    }
+  }
+}
+
+@mixin stroke-spacing-bottom {
+  @keyframes stroke-spacing-bottom {
+    0% {
+      stroke-dashoffset: -2000;
+    }
+    50% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: 2000;
+    }
+  }
+}
