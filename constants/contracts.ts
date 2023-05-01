@@ -22,17 +22,17 @@ export const WRAPPED_TOKEN: { [chainId in ChainId]: string } = {
 
 export const RPC_LIST: { [chainId in ChainId]: string } = {
   [ChainId.BSC]: 'https://bsc-dataseed.binance.org/',
-  [ChainId.MAINNET]: 'https://mainnet.infura.io/v3/9b8f0ddb3e684ece890f594bf1710c88',
+  [ChainId.MAINNET]: 'https://api.securerpc.com/v1',
   [ChainId.XDAI]: 'https://rpc.gnosischain.com/tornado',
 }
 
 export const FALLBACK_RPC_LIST: { [chainId in ChainId]: string[] } = {
   [ChainId.BSC]: [
-    'https://bsc-dataseed1.defibit.io/',
+    'https://binance.nodereal.io',
     // 'https://rpc.ankr.com/bsc/dbe08b852ba176a8aeac783cc1fa8becaf4f107235dfdae79241063fbf52ca4a',
   ],
   [ChainId.MAINNET]: [
-    'https://eth-mainnet.alchemyapi.io/v2/3MKhHE9x4Lz6x-tYWNiZe2Jy8C56kBq6',
+    'https://rpc.mevblocker.io',
     // 'https://rpc.ankr.com/eth/dbe08b852ba176a8aeac783cc1fa8becaf4f107235dfdae79241063fbf52ca4a',
   ],
   [ChainId.XDAI]: [
