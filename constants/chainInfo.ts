@@ -1,4 +1,5 @@
 import { ChainId, NetworkConfig, MetamaskList } from '@/types'
+import { RPC_LIST } from '@/constants'
 
 const L1_CHAIN_ID = ChainId.MAINNET
 
@@ -49,7 +50,7 @@ const METAMASK_LIST: MetamaskList = {
   [ChainId.BSC]: {
     chainId: '0x38',
     chainName: 'Binance Smart Chain Mainnet',
-    rpcUrls: ['https://bsc-dataseed1.binance.org'],
+    rpcUrls: [RPC_LIST[56]],
     nativeCurrency: {
       name: 'Binance Chain Native Token',
       symbol: 'BNB',
@@ -60,7 +61,7 @@ const METAMASK_LIST: MetamaskList = {
   [ChainId.XDAI]: {
     chainId: '0x64',
     chainName: 'Gnosis',
-    rpcUrls: ['https://rpc.gnosischain.com'],
+    rpcUrls: [RPC_LIST[100]],
     nativeCurrency: {
       name: 'xDAI',
       symbol: 'xDAI',

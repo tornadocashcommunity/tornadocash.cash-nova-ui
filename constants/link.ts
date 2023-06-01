@@ -35,6 +35,6 @@ export const menuLinks = {
 // SOCIALS
 export const DUNE = 'https://dune.xyz/k06a/TornadoCash-Nova'
 export const TWITTER = 'https://twitter.com/TornadoCash'
-export const TELEGRAM = 'https://t.me/TornadoCashOfficial'
-export const GITHUB = 'https://github.com/tornadocash'
-export const TORNADO_CASH_LANDING = 'https://tornado.cash'
+export const TELEGRAM = 'https://t.me/TornadoOfficial'
+export const GITHUB = 'https://git.tornado.ws'
+export const TORNADO_CASH_LANDING = 'https://tornado.ws'

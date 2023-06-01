@@ -21,9 +21,9 @@ export const WRAPPED_TOKEN: { [chainId in ChainId]: string } = {
 }
 
 export const RPC_LIST: { [chainId in ChainId]: string } = {
-  [ChainId.BSC]: 'https://bsc-dataseed.binance.org/',
-  [ChainId.MAINNET]: 'https://api.securerpc.com/v1',
-  [ChainId.XDAI]: 'https://rpc.gnosischain.com/tornado',
+  [ChainId.BSC]: 'https://bsc-mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
+  [ChainId.MAINNET]: 'https://mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
+  [ChainId.XDAI]: 'https://gnosis-mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
 }
 
 export const FALLBACK_RPC_LIST: { [chainId in ChainId]: string[] } = {
@@ -36,16 +36,15 @@ export const FALLBACK_RPC_LIST: { [chainId in ChainId]: string[] } = {
     // 'https://rpc.ankr.com/eth/dbe08b852ba176a8aeac783cc1fa8becaf4f107235dfdae79241063fbf52ca4a',
   ],
   [ChainId.XDAI]: [
-    'https://poa-xdai.gateway.pokt.network/v1/lb/61a6992dd6fbf3591b90c95b',
     // 'https://rpc.ankr.com/gnosis/dbe08b852ba176a8aeac783cc1fa8becaf4f107235dfdae79241063fbf52ca4a',
-    'https://rpc.gnosischain.com',
+    'https://rpc.gnosis.gateway.fm',
   ],
 }
 
 export const RPC_WS_LIST: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: 'wss://mainnet.infura.io/ws/v3/9b8f0ddb3e684ece890f594bf1710c88',
-  [ChainId.BSC]: 'wss://bsc-ws-node.nariox.org',
-  [ChainId.XDAI]: 'wss://rpc.xdaichain.com/wss/',
+  [ChainId.MAINNET]: 'wss://mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
+  [ChainId.BSC]: 'wss://bsc-mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
+  [ChainId.XDAI]: 'wss://gnosis-mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
 }
 
 export const MULTICALL: { [chainId in ChainId]: string } = {
