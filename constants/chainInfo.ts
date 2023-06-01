@@ -17,6 +17,7 @@ const CHAINS: NetworkConfig = {
     hexChainId: '0x64',
     isEipSupported: false,
     ensSubdomainKey: 'gnosis-nova',
+    blockExplorerUrl: 'https://gnosisscan.io'
   },
   [ChainId.MAINNET]: {
     symbol: 'ETH',
@@ -30,6 +31,7 @@ const CHAINS: NetworkConfig = {
     hexChainId: '0x1',
     isEipSupported: true,
     ensSubdomainKey: 'mainnet-tornado',
+    blockExplorerUrl: 'https://etherscan.io'
   },
   [ChainId.BSC]: {
     symbol: 'BNB',
@@ -43,6 +45,7 @@ const CHAINS: NetworkConfig = {
     hexChainId: '0x38',
     isEipSupported: false,
     ensSubdomainKey: 'bsc-tornado',
+    blockExplorerUrl: 'https://bscscan.com'
   },
 }
 
@@ -56,7 +59,7 @@ const METAMASK_LIST: MetamaskList = {
       symbol: 'BNB',
       decimals: 18,
     },
-    blockExplorerUrls: ['https://bscscan.com'],
+    blockExplorerUrls: [CHAINS[ChainId.BSC].blockExplorerUrl],
   },
   [ChainId.XDAI]: {
     chainId: '0x64',
@@ -67,7 +70,7 @@ const METAMASK_LIST: MetamaskList = {
       symbol: 'xDAI',
       decimals: 18,
     },
-    blockExplorerUrls: ['https://blockscout.com/xdai/mainnet'],
+    blockExplorerUrls: [CHAINS[ChainId.XDAI].blockExplorerUrl],
   },
 }
 

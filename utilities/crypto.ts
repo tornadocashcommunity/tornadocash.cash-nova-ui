@@ -7,7 +7,7 @@ import { hexDataSlice } from '@ethersproject/bytes'
 import { keccak256 } from '@ethersproject/keccak256'
 import { entropyToMnemonic } from '@ethersproject/hdnode'
 
-import { numbers } from '@/constants'
+import { numbers, CHAINS } from '@/constants'
 import { ChainId, L1ChainId } from '@/types'
 import { getBridgeHelper, getMulticall } from '@/contracts'
 import { ArgsProof, ExtData } from '@/services/core/@types'
@@ -74,9 +74,9 @@ export function getEtherscanLink(chainId: ChainId, data: string, type: 'transact
   let prefix = `https://${ETHERSCAN_PREFIXES[chainId]}etherscan.io`
 
   if (chainId === ChainId.BSC) {
-    prefix = `https://bscscan.com`
+    prefix = CHAINS[ChainId.BSC].blockExplorerUrl
   } else if (chainId === ChainId.XDAI) {
-    prefix = `https://blockscout.com/poa/xdai`
+    prefix = CHAINS[ChainId.XDAI].blockExplorerUrl
   }
 
   switch (type) {

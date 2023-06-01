@@ -61,7 +61,7 @@ import { mapGetters, mapMutations, mapState } from 'vuex'
 import { ApplicationMutation } from '@/types'
 import { SuccessModal } from '@/modals'
 import { createModalArgs, getEtherscanLink } from '@/utilities'
-import { numbers, confirmationStatus, confirmationStep, transactionMethods } from '@/constants'
+import { numbers, confirmationStatus, confirmationStep, transactionMethods, CHAINS } from '@/constants'
 
 export default {
   name: 'ConfirmationModal',
@@ -136,7 +136,7 @@ export default {
       }
     },
     l2Link() {
-      return `https://alm-xdai.herokuapp.com/${this.modal.chainId}/${this.txHash}`
+      return getEtherscanLink(this.modal.chainId, this.txHash, 'transaction')
     },
     explorerLink() {
       return getEtherscanLink(this.modal.chainId, this.txHash, 'transaction')

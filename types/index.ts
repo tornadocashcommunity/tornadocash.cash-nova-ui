@@ -30,7 +30,8 @@ export type NetworkConfigItem = {
   blockGasLimit: number
   hexChainId: string
   isEipSupported: boolean
-  ensSubdomainKey: string
+  ensSubdomainKey: string,
+  blockExplorerUrl: string
 }
 
 export type MetamaskConfigItem = {
