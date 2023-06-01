@@ -41,8 +41,8 @@ class Provider implements WorkerProvider {
 
     const basePath = `${window.location.origin}${ipfsPathPrefix}`
 
-    this.nullifierWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/nullifier.worker.js`))
-    this.eventsWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/events.worker.js`))
+    this.nullifierWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/_nuxt/workers/nullifier.worker.js`))
+    this.eventsWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/_nuxt/workers/events.worker.js`))
 
     // // @ts-expect-error
     // this.nullifierWorkers = new Array(CORES).fill('').map(() => new NWorker())
