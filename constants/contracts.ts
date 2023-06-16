@@ -74,7 +74,7 @@ export const BRIDGE_FEE_MANAGER: { [chainId in ChainId]: string } = {
 }
 
 export const FOREIGN_OMNIBRIDGE = {
-  [ChainId.MAINNET]: '0x88ad09518695c6c3712ac10a214be5109a655671',
+  [ChainId.MAINNET]: '0x88ad09518695c6c3712AC10a214bE5109a655671',
 }
 
 export const OMNIBRIDGE = {
