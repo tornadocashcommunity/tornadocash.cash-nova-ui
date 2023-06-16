@@ -70,6 +70,16 @@ const ETHERSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   100: '',
 }
 
+const AMB_EXPLORER_SUFFIXES: { [chainId in ChainId]: string } = {
+  1: 'xdai',
+  56: 'bsc',
+  100: 'xdai',
+}
+
+export function getAmbBridgeTxLink(chainId: ChainId, data: string): string {
+  return `https://alm-${AMB_EXPLORER_SUFFIXES[chainId]}.tornado.ws/${chainId}/${data}`
+}
+
 export function getEtherscanLink(chainId: ChainId, data: string, type: 'transaction' | 'token' | 'address' | 'block'): string {
   let prefix = `https://${ETHERSCAN_PREFIXES[chainId]}etherscan.io`
 
@@ -215,7 +225,7 @@ export function encodeTransactData({ args, extData }: { args: ArgsProof; extData
       'tuple(bytes proof,bytes32 root,bytes32[] inputNullifiers,bytes32[2] outputCommitments,uint256 publicAmount,bytes32 extDataHash)',
       'tuple(address recipient,int256 extAmount,address relayer,uint256 fee,bytes encryptedOutput1,bytes encryptedOutput2,bool isL1Withdrawal,uint256 l1Fee)',
     ],
-    [args, extData],
+    [args, extData]
   )
 }
 
@@ -268,7 +278,7 @@ export const getMessageIdFromTransaction = (type: 'withdrawal' | 'deposit', rece
 // eslint-disable-next-line
 export const onStaticMulticall = async <C extends BaseContract, A extends any[]>(
   chainId: ChainId,
-  calls: Array<{ contract: C; methodName: string; args: A }>,
+  calls: Array<{ contract: C; methodName: string; args: A }>
 ) => {
   const multicall = getMulticall(chainId)
 

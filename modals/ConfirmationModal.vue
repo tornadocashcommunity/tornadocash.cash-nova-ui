@@ -5,11 +5,7 @@
       <p :class="$style.confirm__text">Processing...</p>
 
       <ul :class="$style.confirm__list">
-        <li
-          v-for="{ name, text, progress } in stepsData"
-          :key="name"
-          :class="[$style.confirm__listItem, $style[processingStatuses[name]]]"
-        >
+        <li v-for="{ name, text, progress } in stepsData" :key="name" :class="[$style.confirm__listItem, $style[processingStatuses[name]]]">
           <span :class="$style.confirm__listItemStatus">
             <base-icon v-if="processingStatuses[name] === 'success'" name="tick" size="medium" />
             <base-icon v-if="processingStatuses[name] === 'fail'" name="cross" size="medium" />
@@ -27,13 +23,7 @@
           <span v-if="transactionOptions.from" :class="$style.confirm__linksItemTitle">
             {{ transactionOptions.from }} transaction:&nbsp;
           </span>
-          <a
-            v-if="!!txHash"
-            :class="$style.confirm__linksItemValue"
-            :href="explorerLink"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a v-if="!!txHash" :class="$style.confirm__linksItemValue" :href="explorerLink" target="_blank" rel="noopener noreferrer">
             {{ shortenLink }}
           </a>
           <span v-else :class="$style.confirm__linksItemValue_none">—</span>
@@ -58,9 +48,9 @@
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
 
-import { ApplicationMutation } from '@/types'
+import { ApplicationMutation, ChainId } from '@/types'
 import { SuccessModal } from '@/modals'
-import { createModalArgs, getEtherscanLink } from '@/utilities'
+import { createModalArgs, getEtherscanLink, getAmbBridgeTxLink } from '@/utilities'
 import { numbers, confirmationStatus, confirmationStep, transactionMethods, CHAINS } from '@/constants'
 
 export default {
@@ -136,14 +126,14 @@ export default {
       }
     },
     l2Link() {
-      return getEtherscanLink(this.modal.chainId, this.txHash, 'transaction')
+      return getAmbBridgeTxLink(this.modal.chainId, this.txHash)
     },
     explorerLink() {
       return getEtherscanLink(this.modal.chainId, this.txHash, 'transaction')
     },
     shortenLink() {
       return `${this.txHash.substring(numbers.ZERO, Number('8') + numbers.OX_LENGTH)}...${this.txHash.substring(
-        Number('60') - Number('8'),
+        Number('60') - Number('8')
       )}`
     },
     symbol() {
