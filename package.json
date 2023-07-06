@@ -35,7 +35,7 @@
     "file-saver": "^2.0.5",
     "find-replacement-tx": "^1.2.1",
     "fixed-merkle-tree": "0.5.1",
-    "gas-price-oracle": "0.4.4",
+    "@tornado/gas-price-oracle": "^0.5.3",
     "graphql": "^15.6.1",
     "idb": "6.0.0",
     "jszip": "^3.7.1",

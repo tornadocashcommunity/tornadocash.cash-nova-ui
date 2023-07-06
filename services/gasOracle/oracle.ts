@@ -1,5 +1,5 @@
-import { GasPriceOracle } from 'gas-price-oracle'
-import { GasPrice } from 'gas-price-oracle/lib/types'
+import { GasPriceOracle } from '@tornado/gas-price-oracle'
+import { GasPrice } from '@/types'
 
 import { ChainId } from '@/types'
 import { numbers, RPC_LIST } from '@/constants'
@@ -26,7 +26,7 @@ const getGasPrice = async (chainId: ChainId): Promise<GasPrice> => {
     timeout: TEN_SECOND,
     defaultRpc: RPC_LIST[chainId],
   })
-  const result = await instance.gasPrices()
+  const result = (await instance.gasPrices({ isLegacy: true })) as GasPrice
 
   if (chainId === ChainId.XDAI || chainId === ChainId.MAINNET) {
     return {
