@@ -3,7 +3,7 @@
 const { AES, HmacSHA256, enc } = require('crypto-js')
 const { isEmpty } = require('lodash')
 const { BigNumber } = require('ethers')
-const { poseidon } = require('circomlib')
+const { poseidon } = require('@tornado/circomlib')
 const { decrypt } = require('eth-sig-util')
 const { IndexedDB } = require('../services/idb')
 const { sleep } = require('../utilities/helpers')
@@ -213,10 +213,7 @@ const getCommitmentEvents = async ({ publicKey, lastSyncBlock, withCache = true 
   }
 }
 
-const getBatchCommitmentsEvents = async (
-  { blockFrom, blockTo, publicKey, privateKey, cachedEvents, withCache = true },
-  [port],
-) => {
+const getBatchCommitmentsEvents = async ({ blockFrom, blockTo, publicKey, privateKey, cachedEvents, withCache = true }, [port]) => {
   try {
     const commitments = await getCommitmentBatch({ blockFrom, blockTo, publicKey, cachedEvents, withCache })
 

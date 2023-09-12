@@ -4,7 +4,7 @@
 import Jszip from 'jszip'
 import { BigNumber } from 'ethers'
 // @ts-expect-error
-import MerkleTree from 'fixed-merkle-tree'
+import MerkleTree from '@tornado/fixed-merkle-tree'
 import axios, { AxiosResponse } from 'axios'
 import { BytesLike } from '@ethersproject/bytes'
 
@@ -186,8 +186,12 @@ async function prepareTransaction({
 async function getIPFSIdFromENS(ensName: string) {
   const { provider } = getProvider(ChainId.MAINNET)
   const resolver = await provider.getResolver(ensName)
-  const cHash = await resolver.getContentHash()
+  if (!resolver) {
+    console.error(`Cannot fetch ENS resolver for ${ensName}`)
+    return ''
+  }
 
+  const cHash = await resolver.getContentHash()
   const [, id] = cHash.split('://')
 
   return id
@@ -208,12 +212,7 @@ async function fetchFile<T>({ url, name, id, retryAttempt = numbers.ZERO }: Fetc
       id = await getIPFSIdFromENS(APP_ENS_NAME)
     }
 
-    const knownResources = [
-      url,
-      `https://ipfs.io/ipfs/${id}`,
-      `https://dweb.link/ipfs/${id}`,
-      `https://gateway.pinata.cloud/ipfs/${id}`,
-    ]
+    const knownResources = [url, `https://ipfs.io/ipfs/${id}`, `https://dweb.link/ipfs/${id}`, `https://gateway.pinata.cloud/ipfs/${id}`]
 
     if (retryAttempt < knownResources.length) {
       const fallbackUrl = knownResources[retryAttempt]
@@ -257,7 +256,7 @@ async function estimateTransact(payload: EstimateTransactParams) {
   } catch (err) {
     console.error('estimateTransact has error:', err.message)
     throw new Error(
-      `Looks like you are accessing an outdated version of the user interface. Reload page or try an alternative gateway. If that doesn't work please contact support`,
+      `Looks like you are accessing an outdated version of the user interface. Reload page or try an alternative gateway. If that doesn't work please contact support`
     )
   }
 }
@@ -274,7 +273,7 @@ async function createTransactionData(params: CreateTransactionParams, keypair: K
     } else {
       const commitmentsService = commitmentsFactory.getService(ChainId.XDAI)
 
-      params.events =await commitmentsService.fetchCommitments(keypair)
+      params.events = await commitmentsService.fetchCommitments(keypair)
     }
 
     const { extData, args, amount } = await prepareTransaction(params)

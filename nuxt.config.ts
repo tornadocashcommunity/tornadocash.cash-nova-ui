@@ -96,6 +96,10 @@ const config: NuxtConfig = {
     '@/plugins/prevent-multitabs.ts',
   ],
 
+  typescript: {
+    typeCheck: false,
+  },
+
   styleResources: {
     scss: ['@/assets/styles/_variables.scss', '@/assets/styles/*.scss'],
   },

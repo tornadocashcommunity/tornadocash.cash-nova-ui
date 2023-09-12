@@ -21,6 +21,12 @@ declare global {
   }
 }
 
+declare module '@tornado/circomlib' {
+  interface Circom {
+    poseidon: CallableFunction
+  }
+}
+
 declare module 'vue/types/vue' {
   interface Vue {
     $eventsWorker: WorkerProvider

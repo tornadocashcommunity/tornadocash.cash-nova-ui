@@ -2,7 +2,7 @@ import crypto from 'crypto'
 
 import { BigNumber, utils } from 'ethers'
 // @ts-expect-error
-import { poseidon } from 'circomlib'
+import { poseidon } from '@tornado/circomlib'
 
 import { numbers, FIELD_SIZE } from '@/constants'
 
@@ -36,16 +36,7 @@ interface Params {
   encryptedOutput2: string
 }
 
-function getExtDataHash({
-  recipient,
-  extAmount,
-  isL1Withdrawal,
-  relayer,
-  fee,
-  l1Fee,
-  encryptedOutput1,
-  encryptedOutput2,
-}: Params) {
+function getExtDataHash({ recipient, extAmount, isL1Withdrawal, relayer, fee, l1Fee, encryptedOutput1, encryptedOutput2 }: Params) {
   const abi = new utils.AbiCoder()
 
   const encodedData = abi.encode(
@@ -63,7 +54,7 @@ function getExtDataHash({
         isL1Withdrawal: isL1Withdrawal,
         l1Fee: toFixedHex(l1Fee),
       },
-    ],
+    ]
   )
   const hash = utils.keccak256(encodedData)
   return BigNumber.from(hash).mod(FIELD_SIZE)
@@ -74,7 +65,7 @@ function toFixedHex(number?: number | Buffer | BigNumber | string, length = BYTE
     '0x' +
     (number instanceof Buffer ? number.toString('hex') : BigNumber.from(number).toHexString().replace('0x', '')).padStart(
       length * numbers.TWO,
-      '0',
+      '0'
     )
   if (result.includes('-')) {
     result = '-' + result.replace('-', '')
