@@ -21,9 +21,9 @@ export const WRAPPED_TOKEN: { [chainId in ChainId]: string } = {
 }
 
 export const RPC_LIST: { [chainId in ChainId]: string } = {
-  [ChainId.BSC]: 'https://bsc-mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
-  [ChainId.MAINNET]: 'https://mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
-  [ChainId.XDAI]: 'https://gnosis-mainnet.chainnodes.org/d692ae63-0a7e-43e0-9da9-fe4f4cc6c607',
+  [ChainId.BSC]: 'https://tornadocash-rpc.com/bsc',
+  [ChainId.MAINNET]: 'https://tornadocash-rpc.com/mainnet',
+  [ChainId.XDAI]: 'https://tornadocash-rpc.com/gnosis',
 }
 
 export const FALLBACK_RPC_LIST: { [chainId in ChainId]: string[] } = {
@@ -37,7 +37,7 @@ export const FALLBACK_RPC_LIST: { [chainId in ChainId]: string[] } = {
   ],
   [ChainId.XDAI]: [
     // 'https://rpc.ankr.com/gnosis/dbe08b852ba176a8aeac783cc1fa8becaf4f107235dfdae79241063fbf52ca4a',
-    'https://rpc.gnosis.gateway.fm',
+    'https://tornadocash-rpc.com/gnosis',
   ],
 }
 
