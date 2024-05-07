@@ -73,16 +73,30 @@ const setTornadoPool = (chainId, provider) => {
 const getCommitmentBatch = async ({ blockFrom, blockTo, cachedEvents, withCache }) => {
   const events = []
 
-  let { events: graphEvents, lastSyncBlock } = await getAllCommitments({ fromBlock: blockFrom, chainId })
+  let { events: graphEvents, lastSyncBlock } = await getAllCommitments({
+    fromBlock: blockFrom,
+    toBlock: blockTo,
+    chainId
+  })
 
   if (lastSyncBlock) {
-    graphEvents = graphEvents.map(({ blockNumber, transactionHash, index, commitment, encryptedOutput }) => ({
-      blockNumber,
-      transactionHash,
-      index: Number(index),
-      commitment,
-      encryptedOutput,
-    }))
+    graphEvents = graphEvents
+      .filter(({ blockNumber }) => {
+        if (blockFrom && blockTo) {
+          return Number(blockFrom) <= Number(blockNumber) && Number(blockNumber) <= Number(blockTo)
+        } else if (blockTo) {
+          return Number(blockNumber) <= Number(blockTo)
+        }
+        // does not filter by default
+        return true
+      })
+      .map(({ blockNumber, transactionHash, index, commitment, encryptedOutput }) => ({
+        blockNumber,
+        transactionHash,
+        index: Number(index),
+        commitment,
+        encryptedOutput,
+      }))
 
     console.log({
       graphEvents

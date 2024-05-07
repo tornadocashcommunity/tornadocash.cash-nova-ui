@@ -45,7 +45,7 @@ async function getCommitments({ fromBlock, chainId }) {
   }
 }
 
-async function getAllCommitments({ fromBlock, chainId }) {
+async function getAllCommitments({ fromBlock, toBlock, chainId }) {
   try {
     let commitments = []
     let lastSyncBlock
@@ -70,6 +70,10 @@ async function getAllCommitments({ fromBlock, chainId }) {
       fromBlock = Number(lastEvent.blockNumber)
 
       commitments = commitments.concat(results)
+
+      if (toBlock && fromBlock >= Number(toBlock)) {
+        break
+      }
     }
 
     if (!commitments) {
