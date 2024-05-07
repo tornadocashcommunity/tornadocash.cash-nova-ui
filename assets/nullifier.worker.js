@@ -140,26 +140,24 @@ const getNullifiers = async (blockFrom) => {
       events.push(...graphEvents)
       blockFrom = lastSyncBlock + numbers.ONE
     }
+
+    let nodeEvents = await self.BatchEventsService.getBatchEvents({
+      fromBlock: blockFrom,
+      type: 'NewNullifier'
+    })
     
-    if (!blockTo || blockTo > blockFrom) {
-      let nodeEvents = await self.BatchEventsService.getBatchEvents({
-        fromBlock: blockFrom,
-        type: 'NewNullifier'
+    if (nodeEvents && nodeEvents.length) {
+      nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
+        blockNumber,
+        transactionHash,
+        nullifier: args.nullifier,
+      }))
+
+      console.log({
+        nodeEvents
       })
       
-      if (nodeEvents && nodeEvents.length) {
-        nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
-          blockNumber,
-          transactionHash,
-          nullifier: args.nullifier,
-        }))
-
-        console.log({
-          nodeEvents
-        })
-        
-        events.push(...nodeEvents)
-      }
+      events.push(...nodeEvents)
     }
     
     return events
