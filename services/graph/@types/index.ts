@@ -12,3 +12,21 @@ export type Account = {
 }
 
 export type Accounts = Account[]
+
+export type Commitment = {
+  index: string
+  commitment: string
+  blockNumber: string
+  encryptedOutput: string
+  transactionHash: string
+}
+
+export type Commitments = Commitment[]
+
+export type Nullifier = {
+  nullifier: string
+  blockNumber: string
+  transactionHash: string
+}
+
+export type Nullifiers = Nullifier[]

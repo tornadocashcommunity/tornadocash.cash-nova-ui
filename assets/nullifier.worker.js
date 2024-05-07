@@ -3,6 +3,8 @@ const { isEmpty } = require('lodash')
 const { BigNumber } = require('ethers')
 
 const { IndexedDB } = require('../services/idb')
+const { BatchEventsService } = require('../services/batch')
+const { getAllNullifiers } = require('../services/graph')
 const { sleep } = require('../utilities/helpers')
 const { workerEvents, numbers } = require('../constants/worker')
 const { ExtendedProvider } = require('../services/ether/ExtendedProvider')
@@ -48,6 +50,11 @@ const initWorker = (chainId) => {
 
 const setTornadoPool = (chainId, provider) => {
   self.poolContract = TornadoPoolFactory.connect(POOL_CONTRACT[chainId], provider)
+
+  self.BatchEventsService = new BatchEventsService({
+    provider,
+    contract: self.poolContract
+  })
 }
 
 const saveEvents = async ({ events }) => {
@@ -123,8 +130,10 @@ const getCachedEvents = async () => {
 
 const getNullifiers = async (blockFrom) => {
   try {
-    const filter = self.poolContract.filters.NewNullifier()
-    const events = await self.poolContract.queryFilter(filter, blockFrom)
+    const events = await self.BatchEventsService.getBatchEvents({
+      fromBlock: blockFrom,
+      type: 'NewNullifier'
+    })
 
     return events.map(({ blockNumber, transactionHash, args }) => ({
       blockNumber,

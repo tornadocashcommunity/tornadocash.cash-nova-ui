@@ -6,6 +6,8 @@ const { BigNumber } = require('ethers')
 const { poseidon } = require('@tornado/circomlib')
 const { decrypt } = require('eth-sig-util')
 const { IndexedDB } = require('../services/idb')
+const { BatchEventsService } = require('../services/batch')
+const { getAllCommitments } = require('../services/graph')
 const { sleep } = require('../utilities/helpers')
 const { workerEvents, numbers } = require('../constants/worker')
 const { ExtendedProvider } = require('../services/ether/ExtendedProvider')
@@ -62,11 +64,19 @@ const initWorker = (chainId) => {
 }
 const setTornadoPool = (chainId, provider) => {
   self.poolContract = TornadoPoolFactory.connect(POOL_CONTRACT[chainId], provider)
+
+  self.BatchEventsService = new BatchEventsService({
+    provider,
+    contract: self.poolContract
+  })
 }
 
 const getCommitmentBatch = async ({ blockFrom, blockTo, cachedEvents, withCache }) => {
-  const filter = self.poolContract.filters.NewCommitment()
-  const events = await self.poolContract.queryFilter(filter, blockFrom, blockTo)
+  const events = await self.BatchEventsService.getBatchEvents({
+    fromBlock: blockFrom,
+    toBlock: blockTo,
+    type: 'NewCommitment'
+  })
 
   const commitmentEvents = events.map(({ blockNumber, transactionHash, args }) => ({
     blockNumber,

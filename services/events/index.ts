@@ -8,6 +8,8 @@ import { getBridgeHelper, getBridgeProxy, getAmbBridge } from '@/contracts'
 
 import { EventsClass, GetAffirmationParams, GetRelayedMessageParams, SaveEventsParams } from './@types'
 
+export * from './batch'
+
 class EventAggregator implements EventsClass {
   public async getBackupedAddressFromPublicKey(publicKey: string) {
     try {
