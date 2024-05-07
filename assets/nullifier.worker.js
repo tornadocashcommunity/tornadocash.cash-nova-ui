@@ -4,6 +4,7 @@ const { BigNumber, Contract } = require('ethers')
 
 const { IndexedDB } = require('./services/idb')
 const { BatchEventsService } = require('./services/batch')
+const { getAllNullifiers } = require('./services/graph')
 const { ExtendedProvider } = require('./services/provider')
 const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } = require('./services/constants')
 const { sleep } = require('./services/utilities')
@@ -127,16 +128,41 @@ const getCachedEvents = async () => {
 
 const getNullifiers = async (blockFrom) => {
   try {
-    const events = await self.BatchEventsService.getBatchEvents({
-      fromBlock: blockFrom,
-      type: 'NewNullifier'
-    })
+    const events = []
+    
+    let { events: graphEvents, lastSyncBlock } = await getAllNullifiers({ fromBlock: blockFrom, chainId })
+    
+    if (lastSyncBlock) {
+      console.log({
+        graphEvents
+      })
 
-    return events.map(({ blockNumber, transactionHash, args }) => ({
-      blockNumber,
-      transactionHash,
-      nullifier: args.nullifier,
-    }))
+      events.push(...graphEvents)
+      blockFrom = lastSyncBlock + numbers.ONE
+    }
+    
+    if (!blockTo || blockTo > blockFrom) {
+      let nodeEvents = await self.BatchEventsService.getBatchEvents({
+        fromBlock: blockFrom,
+        type: 'NewNullifier'
+      })
+      
+      if (nodeEvents && nodeEvents.length) {
+        nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
+          blockNumber,
+          transactionHash,
+          nullifier: args.nullifier,
+        }))
+
+        console.log({
+          nodeEvents
+        })
+        
+        events.push(...nodeEvents)
+      }
+    }
+    
+    return events
   } catch (err) {
     console.error('getNullifiers', err.message)
     return []

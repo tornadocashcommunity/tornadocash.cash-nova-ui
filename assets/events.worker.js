@@ -8,6 +8,7 @@ const { decrypt } = require('eth-sig-util')
 
 const { IndexedDB } = require('./services/idb')
 const { BatchEventsService } = require('./services/batch')
+const { getAllCommitments } = require('./services/graph')
 const { ExtendedProvider } = require('./services/provider')
 const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } = require('./services/constants')
 const { sleep } = require('./services/utilities')
@@ -70,21 +71,52 @@ const setTornadoPool = (chainId, provider) => {
 }
 
 const getCommitmentBatch = async ({ blockFrom, blockTo, cachedEvents, withCache }) => {
-  const events = await self.BatchEventsService.getBatchEvents({
-    fromBlock: blockFrom,
-    toBlock: blockTo,
-    type: 'NewCommitment'
-  })
+  const events = []
 
-  const commitmentEvents = events.map(({ blockNumber, transactionHash, args }) => ({
-    blockNumber,
-    transactionHash,
-    index: Number(args.index),
-    commitment: args.commitment,
-    encryptedOutput: args.encryptedOutput,
-  }))
+  let { events: graphEvents, lastSyncBlock } = await getAllCommitments({ fromBlock: blockFrom, chainId })
 
-  return commitmentEvents.filter((el) => {
+  if (lastSyncBlock) {
+    graphEvents = graphEvents.map(({ blockNumber, transactionHash, index, commitment, encryptedOutput }) => ({
+      blockNumber,
+      transactionHash,
+      index: Number(index),
+      commitment,
+      encryptedOutput,
+    }))
+
+    console.log({
+      graphEvents
+    })
+
+    events.push(...graphEvents)
+    blockFrom = lastSyncBlock + numbers.ONE
+  }
+
+  if (!blockTo || blockTo > blockFrom) {
+    let nodeEvents = await self.BatchEventsService.getBatchEvents({
+      fromBlock: blockFrom,
+      toBlock: blockTo,
+      type: 'NewCommitment'
+    })
+
+    if (nodeEvents && nodeEvents.length) {
+      nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
+        blockNumber,
+        transactionHash,
+        index: Number(args.index),
+        commitment: args.commitment,
+        encryptedOutput: args.encryptedOutput,
+      }))
+
+      console.log({
+        nodeEvents
+      })
+  
+      events.push(...nodeEvents)
+    }
+  }
+
+  return events.filter((el) => {
     if (!withCache && cachedEvents && cachedEvents.length) {
       return cachedEvents.find((cached) => {
         return el.transactionHash === cached.transactionHash && el.index === cached.index

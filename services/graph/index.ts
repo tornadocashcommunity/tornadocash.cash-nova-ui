@@ -18,7 +18,8 @@ const link = (operation: Operation) => {
 
 const CHAIN_GRAPH_URLS: { [chainId in ChainId]: string } = {
   [ChainId.BSC]: 'https://api.thegraph.com/subgraphs/name/dan1kov/bsc-tornado-pool-subgraph',
-  [ChainId.MAINNET]: 'https://api.thegraph.com/subgraphs/name/tornadocash/mainnet-tornado-pool-subgraph',
+  [ChainId.MAINNET]: 'https://tornadocash-rpc.com/subgraphs/name/tornadocash/mainnet-tornado-pool-subgraph',
+  [ChainId.XDAI]: 'https://tornadocash-rpc.com/subgraphs/name/tornadocash/gnosis-tornado-nova-subgraph',
 }
 
 const client = new ApolloClient({
@@ -27,7 +28,7 @@ const client = new ApolloClient({
 })
 
 const registryClient = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/tornadocash/tornado-relayer-registry',
+  uri: 'https://tornadocash-rpc.com/subgraphs/name/tornadocash/tornado-relayer-registry',
   cache: new InMemoryCache(),
 })
 
@@ -272,7 +273,7 @@ export async function getNullifiers({ fromBlock, chainId }: Params): Promise<{
   }
 
   return {
-    results: data.commitments,
+    results: data.nullifiers,
     lastSyncBlock: data._meta.block.number
   }
 }
