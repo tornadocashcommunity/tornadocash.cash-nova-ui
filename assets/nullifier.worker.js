@@ -4,7 +4,6 @@ const { BigNumber } = require('ethers')
 
 const { IndexedDB } = require('../services/idb')
 const { BatchEventsService } = require('../services/batch')
-const { getAllNullifiers } = require('../services/graph')
 const { sleep } = require('../utilities/helpers')
 const { workerEvents, numbers } = require('../constants/worker')
 const { ExtendedProvider } = require('../services/ether/ExtendedProvider')
