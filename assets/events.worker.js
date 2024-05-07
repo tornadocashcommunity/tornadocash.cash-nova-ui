@@ -8,6 +8,7 @@ const { decrypt } = require('eth-sig-util')
 
 const { IndexedDB } = require('./services/idb')
 const { BatchEventsService } = require('./services/batch')
+const { getAllCommitments } = require('./services/graph')
 const { ExtendedProvider } = require('./services/provider')
 const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } = require('./services/constants')
 const { sleep } = require('./services/utilities')
@@ -70,21 +71,66 @@ const setTornadoPool = (chainId, provider) => {
 }
 
 const getCommitmentBatch = async ({ blockFrom, blockTo, cachedEvents, withCache }) => {
-  const events = await self.BatchEventsService.getBatchEvents({
+  const events = []
+
+  let { events: graphEvents, lastSyncBlock } = await getAllCommitments({
     fromBlock: blockFrom,
     toBlock: blockTo,
-    type: 'NewCommitment'
+    chainId
   })
 
-  const commitmentEvents = events.map(({ blockNumber, transactionHash, args }) => ({
-    blockNumber,
-    transactionHash,
-    index: Number(args.index),
-    commitment: args.commitment,
-    encryptedOutput: args.encryptedOutput,
-  }))
+  if (lastSyncBlock) {
+    graphEvents = graphEvents
+      .filter(({ blockNumber }) => {
+        if (blockFrom && blockTo) {
+          return Number(blockFrom) <= Number(blockNumber) && Number(blockNumber) <= Number(blockTo)
+        } else if (blockTo) {
+          return Number(blockNumber) <= Number(blockTo)
+        }
+        // does not filter by default
+        return true
+      })
+      .map(({ blockNumber, transactionHash, index, commitment, encryptedOutput }) => ({
+        blockNumber,
+        transactionHash,
+        index: Number(index),
+        commitment,
+        encryptedOutput,
+      }))
 
-  return commitmentEvents.filter((el) => {
+    console.log({
+      graphEvents
+    })
+
+    events.push(...graphEvents)
+    blockFrom = lastSyncBlock + numbers.ONE
+  }
+
+  if (!blockTo || blockTo > blockFrom) {
+    let nodeEvents = await self.BatchEventsService.getBatchEvents({
+      fromBlock: blockFrom,
+      toBlock: blockTo,
+      type: 'NewCommitment'
+    })
+
+    if (nodeEvents && nodeEvents.length) {
+      nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
+        blockNumber,
+        transactionHash,
+        index: Number(args.index),
+        commitment: args.commitment,
+        encryptedOutput: args.encryptedOutput,
+      }))
+
+      console.log({
+        nodeEvents
+      })
+  
+      events.push(...nodeEvents)
+    }
+  }
+
+  return events.filter((el) => {
     if (!withCache && cachedEvents && cachedEvents.length) {
       return cachedEvents.find((cached) => {
         return el.transactionHash === cached.transactionHash && el.index === cached.index

@@ -131,6 +131,7 @@ const numbers = {
 }
 
 module.exports = {
+  ChainId,
   POOL_CONTRACT,
   RPC_LIST,
   FALLBACK_RPC_LIST,
