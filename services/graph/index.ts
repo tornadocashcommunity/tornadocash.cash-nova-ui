@@ -231,13 +231,15 @@ export async function getAllCommitments({ fromBlock, chainId }: Params) {
       }
     }
 
-    const data = commitments.map((e) => ({
-      index: Number(e.index),
-      commitment: e.commitment,
-      blockNumber: Number(e.blockNumber),
-      encryptedOutput: e.encryptedOutput,
-      transactionHash: e.transactionHash
-    }))
+    const data = commitments
+      .map((e) => ({
+        index: Number(e.index),
+        commitment: e.commitment,
+        blockNumber: Number(e.blockNumber),
+        encryptedOutput: e.encryptedOutput,
+        transactionHash: e.transactionHash
+      }))
+      .sort((a, b) => a.index - b.index)
 
     const [lastEvent] = data.slice(-numbers.ONE)
 
