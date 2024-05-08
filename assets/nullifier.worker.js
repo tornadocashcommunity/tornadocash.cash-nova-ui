@@ -8,6 +8,7 @@ import { ExtendedProvider } from './services/provider'
 import { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } from './services/constants'
 import { sleep } from './services/utilities'
 import { poolAbi } from './services/pool'
+import { downloadEvents } from './services/downloadEvents'
 
 const getProviderWithSigner = (chainId) => {
   return new ExtendedProvider(RPC_LIST[chainId], chainId, FALLBACK_RPC_LIST[chainId])
@@ -120,6 +121,14 @@ const getCachedEvents = async () => {
       return { blockFrom, cachedEvents }
     }
     blockFrom = newBlockFrom > currentBlock ? currentBlock : newBlockFrom
+  } else {
+    const downloadedEvents = await downloadEvents(`nullifiers_${self.chainId}.json`, blockFrom)
+
+    if (downloadedEvents.events.length) {
+      cachedEvents.push(...downloadedEvents.events)
+
+      blockFrom = downloadedEvents.lastBlock
+    }
   }
 
   return { blockFrom, cachedEvents }
