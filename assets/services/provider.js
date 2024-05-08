@@ -1,10 +1,10 @@
-const { ethers } = require('ethers')
-const { fetchJson } = require('@ethersproject/web')
-const { numbers } = require('./constants')
+import { ethers } from 'ethers'
+import { fetchJson } from 'ethers/lib/utils'
+import { numbers } from './constants'
 
 const defaultRetryAttempt = 0
 
-class ExtendedProvider extends ethers.providers.StaticJsonRpcProvider {
+export class ExtendedProvider extends ethers.providers.StaticJsonRpcProvider {
   constructor(url, network, fallbackRpcs) {
     super(url, network)
     this.fallbackRpcs = fallbackRpcs
@@ -84,5 +84,3 @@ class ExtendedProvider extends ethers.providers.StaticJsonRpcProvider {
   //   return (data?.includes(ERROR_DATA) || message?.includes(ERROR_MESSAGE)) && code === ERROR_CODE
   // }
 }
-
-module.exports = { ExtendedProvider }

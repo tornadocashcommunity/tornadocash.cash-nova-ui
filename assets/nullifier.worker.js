@@ -1,14 +1,13 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const { isEmpty } = require('lodash')
-const { BigNumber, Contract } = require('ethers')
+import { isEmpty } from 'lodash'
+import { BigNumber, Contract } from 'ethers'
 
-const { IndexedDB } = require('./services/idb')
-const { BatchEventsService } = require('./services/batch')
-const { getAllNullifiers } = require('./services/graph')
-const { ExtendedProvider } = require('./services/provider')
-const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } = require('./services/constants')
-const { sleep } = require('./services/utilities')
-const { poolAbi } = require('./services/pool')
+import { IndexedDB } from './services/idb'
+import { BatchEventsService } from './services/batch'
+import { getAllNullifiers } from './services/graph'
+import { ExtendedProvider } from './services/provider'
+import { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } from './services/constants'
+import { sleep } from './services/utilities'
+import { poolAbi } from './services/pool'
 
 const getProviderWithSigner = (chainId) => {
   return new ExtendedProvider(RPC_LIST[chainId], chainId, FALLBACK_RPC_LIST[chainId])
@@ -138,7 +137,7 @@ const getNullifiers = async (blockFrom) => {
       })
 
       events.push(...graphEvents)
-      blockFrom = lastSyncBlock + numbers.ONE
+      blockFrom = lastSyncBlock
     }
 
     let nodeEvents = await self.BatchEventsService.getBatchEvents({
