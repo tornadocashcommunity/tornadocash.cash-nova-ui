@@ -2,6 +2,12 @@
 
 ## Build Setup
 
+If you use the latest Node.js version, you should modify your NODE_OPTIONS env
+
+```bash
+export NODE_OPTIONS="--openssl-legacy-provider"
+```
+
 ```bash
 # install dependencies
 $ yarn install
