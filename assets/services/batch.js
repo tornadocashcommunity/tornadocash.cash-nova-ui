@@ -1,6 +1,6 @@
-const { sleep, getBatches } = require('./utilities')
+import { sleep, getBatches } from './utilities'
 
-class BatchEventsService {
+export class BatchEventsService {
   constructor({
     provider,
     contract,
@@ -83,5 +83,3 @@ class BatchEventsService {
     return events;
   }
 }
-
-module.exports = { BatchEventsService }

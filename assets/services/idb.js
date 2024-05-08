@@ -1,12 +1,12 @@
-const { deleteDB, openDB } = require('idb')
+import { deleteDB, openDB } from 'idb'
 
-const VERSION_ERROR = 'less than the existing version'
-const INDEX_DB_ERROR = 'A mutation operation was attempted on a database that did not allow mutations.'
+export const VERSION_ERROR = 'less than the existing version'
+export const INDEX_DB_ERROR = 'A mutation operation was attempted on a database that did not allow mutations.'
 
-const IDB_VERSION = 9
+export const IDB_VERSION = 9
 
 // TODO method for migration, remove indexed
-class IndexedDB {
+export class IndexedDB {
   constructor({ stores, dbName }) {
     this.dbExists = false
     this.isBlocked = false
@@ -220,5 +220,3 @@ class IndexedDB {
     }
   }
 }
-
-module.exports = { IndexedDB }

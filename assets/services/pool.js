@@ -1,4 +1,4 @@
-const poolAbi = [
+export const poolAbi = [
   {
     inputs: [
       {
@@ -1038,5 +1038,3 @@ const poolAbi = [
     type: "function",
   },
 ]
-
-module.exports = { poolAbi }

@@ -1,18 +1,16 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+import { AES, HmacSHA256, enc } from 'crypto-js'
+import { isEmpty } from 'lodash'
+import { BigNumber, Contract } from 'ethers'
+import { poseidon } from '@tornado/circomlib'
+import { decrypt } from 'eth-sig-util'
 
-const { AES, HmacSHA256, enc } = require('crypto-js')
-const { isEmpty } = require('lodash')
-const { BigNumber, Contract } = require('ethers')
-const { poseidon } = require('@tornado/circomlib')
-const { decrypt } = require('eth-sig-util')
-
-const { IndexedDB } = require('./services/idb')
-const { BatchEventsService } = require('./services/batch')
-const { getAllCommitments } = require('./services/graph')
-const { ExtendedProvider } = require('./services/provider')
-const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } = require('./services/constants')
-const { sleep } = require('./services/utilities')
-const { poolAbi } = require('./services/pool')
+import { IndexedDB } from './services/idb'
+import { BatchEventsService } from './services/batch'
+import { getAllCommitments } from './services/graph'
+import { ExtendedProvider } from './services/provider'
+import { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } from './services/constants'
+import { sleep } from './services/utilities'
+import { poolAbi } from './services/pool'
 
 const getProviderWithSigner = (chainId) => {
   return new ExtendedProvider(RPC_LIST[chainId], chainId, FALLBACK_RPC_LIST[chainId])
@@ -103,7 +101,7 @@ const getCommitmentBatch = async ({ blockFrom, blockTo, cachedEvents, withCache 
     })
 
     events.push(...graphEvents)
-    blockFrom = lastSyncBlock + numbers.ONE
+    blockFrom = lastSyncBlock
   }
 
   if (!blockTo || blockTo > blockFrom) {

@@ -14,7 +14,8 @@
     "generate": "yarn worker:compile && nuxt generate && yarn copyFile dist/404.html dist/ipfs-404.html",
     "prepare": "husky install",
     "ipfs:upload": "node --loader ts-node/esm ipfsUpload.ts",
-    "worker:compile": "webpack"
+    "worker:compile": "webpack",
+    "update:events": "webpack && node ./syncEvents.cjs"
   },
   "dependencies": {
     "@apollo/client": "^3.4.16",
@@ -73,6 +74,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-vue": "^7.16.0",
+    "fflate": "^0.8.2",
     "form-data": "^4.0.0",
     "husky": "^6.0.0",
     "lint-staged": "10.2.11",

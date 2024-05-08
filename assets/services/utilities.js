@@ -1,6 +1,6 @@
-const ZERO_ELEMENT = 0
+export const ZERO_ELEMENT = 0
 
-function getBatches(array, batchSize) {
+export function getBatches(array, batchSize) {
   const batches = []
   while (array.length) {
     batches.push(array.splice(ZERO_ELEMENT, batchSize))
@@ -8,12 +8,6 @@ function getBatches(array, batchSize) {
   return batches
 }
 
-async function sleep(ms) {
+export async function sleep(ms) {
   return await new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-module.exports = {
-  ZERO_ELEMENT,
-  getBatches,
-  sleep
 }
