@@ -2,17 +2,16 @@
 
 const { AES, HmacSHA256, enc } = require('crypto-js')
 const { isEmpty } = require('lodash')
-const { BigNumber } = require('ethers')
+const { BigNumber, Contract } = require('ethers')
 const { poseidon } = require('@tornado/circomlib')
 const { decrypt } = require('eth-sig-util')
-const { IndexedDB } = require('../services/idb')
-const { BatchEventsService } = require('../services/events/batch')
-const { sleep } = require('../utilities/helpers')
-const { workerEvents, numbers } = require('../constants/worker')
-const { ExtendedProvider } = require('../services/ether/ExtendedProvider')
 
-const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST } = require('../constants/contracts')
-const { TornadoPool__factory: TornadoPoolFactory } = require('../_contracts')
+const { IndexedDB } = require('./services/idb')
+const { BatchEventsService } = require('./services/batch')
+const { ExtendedProvider } = require('./services/provider')
+const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } = require('./services/constants')
+const { sleep } = require('./services/utilities')
+const { poolAbi } = require('./services/pool')
 
 const getProviderWithSigner = (chainId) => {
   return new ExtendedProvider(RPC_LIST[chainId], chainId, FALLBACK_RPC_LIST[chainId])
@@ -62,7 +61,7 @@ const initWorker = (chainId) => {
   setTornadoPool(chainId, provider)
 }
 const setTornadoPool = (chainId, provider) => {
-  self.poolContract = TornadoPoolFactory.connect(POOL_CONTRACT[chainId], provider)
+  self.poolContract = new Contract(POOL_CONTRACT[chainId], poolAbi, provider)
 
   self.BatchEventsService = new BatchEventsService({
     provider,
