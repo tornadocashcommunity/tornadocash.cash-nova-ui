@@ -7,6 +7,9 @@ import { isEmpty, sleep, toChecksumAddress } from '@/utilities'
 import { getBridgeHelper, getBridgeProxy, getAmbBridge } from '@/contracts'
 
 import { EventsClass, GetAffirmationParams, GetRelayedMessageParams, SaveEventsParams } from './@types'
+import { downloadEvents } from './load'
+
+export * from './batch'
 
 class EventAggregator implements EventsClass {
   public async getBackupedAddressFromPublicKey(publicKey: string) {
@@ -31,19 +34,31 @@ class EventAggregator implements EventsClass {
         storeName: `${IndexDBStores.ACCOUNT_EVENTS}_${chainId}`,
       })
 
+      const newEvents = []
+
       if (cachedEvents?.length) {
         const [latestEvent] = cachedEvents.slice(-numbers.ONE)
         blockFrom = Number(latestEvent.blockNumber) + numbers.ONE
+      } else {
+        const downloadedEvents = await downloadEvents(`accounts_${chainId}.json`, blockFrom)
+
+        if (downloadedEvents.events.length) {
+          newEvents.push(...downloadedEvents.events)
+    
+          blockFrom = downloadedEvents.lastBlock
+        }
       }
 
       const { events: graphEvents, lastSyncBlock } = await getAllAccounts({ fromBlock: blockFrom, chainId })
 
-      const [account] = graphEvents.filter((e: { key: string }) => e.key === publicKey)
+      newEvents.push(...graphEvents)
+
+      const [account] = newEvents.filter((e: { key: string }) => e.key === publicKey)
 
       if (account) {
         this.saveEvents({
           chainId,
-          events: graphEvents,
+          events: newEvents,
           storeName: IndexDBStores.ACCOUNT_EVENTS,
         })
         return account.owner
@@ -66,7 +81,7 @@ class EventAggregator implements EventsClass {
         }
       })
 
-      const newEvents = graphEvents.concat(accountEvents)
+      newEvents.push(...accountEvents)
 
       this.saveEvents({
         chainId,
@@ -74,7 +89,7 @@ class EventAggregator implements EventsClass {
         storeName: IndexDBStores.ACCOUNT_EVENTS,
       })
 
-      const events = cachedEvents.concat(newEvents).filter((e: { key: string }) => e.key === publicKey)
+      const events = newEvents.filter((e: { key: string }) => e.key === publicKey)
 
       if (isEmpty(events)) {
         return undefined
@@ -85,6 +100,7 @@ class EventAggregator implements EventsClass {
 
       return event.owner
     } catch (err) {
+      console.log(err)
       return undefined
     }
   }
@@ -111,19 +127,30 @@ class EventAggregator implements EventsClass {
         storeName: `${IndexDBStores.ACCOUNT_EVENTS}_${chainId}`,
       })
 
+      const newEvents = []
+
       if (cachedEvents?.length) {
         const [latestEvent] = cachedEvents.slice(-numbers.ONE)
         blockFrom = Number(latestEvent.blockNumber) + numbers.ONE
+      } else {
+        const downloadedEvents = await downloadEvents(`accounts_${chainId}.json`, blockFrom)
+
+        if (downloadedEvents.events.length) {
+          newEvents.push(...downloadedEvents.events)
+    
+          blockFrom = downloadedEvents.lastBlock
+        }
       }
 
       const { events: graphEvents, lastSyncBlock } = await getAllAccounts({ fromBlock: blockFrom, chainId })
+      newEvents.push(...graphEvents)
 
-      const [account] = graphEvents.filter((e: { owner: string }) => toChecksumAddress(e.owner) === toChecksumAddress(address))
+      const [account] = newEvents.filter((e: { owner: string }) => toChecksumAddress(e.owner) === toChecksumAddress(address))
 
       if (account) {
         this.saveEvents({
           chainId,
-          events: graphEvents,
+          events: newEvents,
           storeName: IndexDBStores.ACCOUNT_EVENTS,
         })
         return account.key
@@ -146,7 +173,7 @@ class EventAggregator implements EventsClass {
         }
       })
 
-      const newEvents = graphEvents.concat(accountEvents)
+      newEvents.push(...accountEvents)
 
       this.saveEvents({
         chainId,
@@ -167,6 +194,7 @@ class EventAggregator implements EventsClass {
 
       return event.key
     } catch (err) {
+      console.log(err)
       return undefined
     }
   }

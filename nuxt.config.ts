@@ -123,6 +123,7 @@ const config: NuxtConfig = {
         config.output.globalObject = 'this'
       }
       if (config?.module != null) {
+        /**
         if (isClient) {
           config.module.rules.push({
             test: /\.worker\.js$/,
@@ -133,6 +134,7 @@ const config: NuxtConfig = {
             },
           })
         }
+        **/
 
         config.module.rules.push({
           test: /\.bin$/,

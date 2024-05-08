@@ -55,7 +55,6 @@ export default {
       'setProvider',
       'changeChain',
       'checkNetwork',
-      'checkSanction',
       'setWalletParams',
       'getWalletBalance',
     ]),
@@ -93,9 +92,6 @@ export default {
         const address = await provider.setupProvider()
         const network = await provider.checkNetworkVersion()
 
-        if (address) {
-          await this.checkSanction(address)
-        }
         await this.setProvider({ network, name: key })
         await this.setAccountData(address)
 
@@ -125,8 +121,6 @@ export default {
               // https://github.com/MetaMask/metamask-extension/issues/10125
               if (address) {
                 const checksumAddress = toChecksumAddress(address)
-
-                await this.checkSanction(checksumAddress)
 
                 if (!this.isConnected) {
                   return

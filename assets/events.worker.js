@@ -1,17 +1,17 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+import { AES, HmacSHA256, enc } from 'crypto-js'
+import { isEmpty } from 'lodash'
+import { BigNumber, Contract } from 'ethers'
+import { poseidon } from '@tornado/circomlib'
+import { decrypt } from 'eth-sig-util'
 
-const { AES, HmacSHA256, enc } = require('crypto-js')
-const { isEmpty } = require('lodash')
-const { BigNumber } = require('ethers')
-const { poseidon } = require('@tornado/circomlib')
-const { decrypt } = require('eth-sig-util')
-const { IndexedDB } = require('../services/idb')
-const { sleep } = require('../utilities/helpers')
-const { workerEvents, numbers } = require('../constants/worker')
-const { ExtendedProvider } = require('../services/ether/ExtendedProvider')
-
-const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST } = require('../constants/contracts')
-const { TornadoPool__factory: TornadoPoolFactory } = require('../_contracts')
+import { IndexedDB } from './services/idb'
+import { BatchEventsService } from './services/batch'
+import { getAllCommitments } from './services/graph'
+import { ExtendedProvider } from './services/provider'
+import { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } from './services/constants'
+import { sleep } from './services/utilities'
+import { poolAbi } from './services/pool'
+import { downloadEvents } from './services/downloadEvents'
 
 const getProviderWithSigner = (chainId) => {
   return new ExtendedProvider(RPC_LIST[chainId], chainId, FALLBACK_RPC_LIST[chainId])
@@ -61,22 +61,75 @@ const initWorker = (chainId) => {
   setTornadoPool(chainId, provider)
 }
 const setTornadoPool = (chainId, provider) => {
-  self.poolContract = TornadoPoolFactory.connect(POOL_CONTRACT[chainId], provider)
+  self.poolContract = new Contract(POOL_CONTRACT[chainId], poolAbi, provider)
+
+  self.BatchEventsService = new BatchEventsService({
+    provider,
+    contract: self.poolContract
+  })
 }
 
 const getCommitmentBatch = async ({ blockFrom, blockTo, cachedEvents, withCache }) => {
-  const filter = self.poolContract.filters.NewCommitment()
-  const events = await self.poolContract.queryFilter(filter, blockFrom, blockTo)
+  const events = []
 
-  const commitmentEvents = events.map(({ blockNumber, transactionHash, args }) => ({
-    blockNumber,
-    transactionHash,
-    index: Number(args.index),
-    commitment: args.commitment,
-    encryptedOutput: args.encryptedOutput,
-  }))
+  let { events: graphEvents, lastSyncBlock } = await getAllCommitments({
+    fromBlock: blockFrom,
+    toBlock: blockTo,
+    chainId
+  })
 
-  return commitmentEvents.filter((el) => {
+  if (lastSyncBlock) {
+    graphEvents = graphEvents
+      .filter(({ blockNumber }) => {
+        if (blockFrom && blockTo) {
+          return Number(blockFrom) <= Number(blockNumber) && Number(blockNumber) <= Number(blockTo)
+        } else if (blockTo) {
+          return Number(blockNumber) <= Number(blockTo)
+        }
+        // does not filter by default
+        return true
+      })
+      .map(({ blockNumber, transactionHash, index, commitment, encryptedOutput }) => ({
+        blockNumber,
+        transactionHash,
+        index: Number(index),
+        commitment,
+        encryptedOutput,
+      }))
+
+    console.log({
+      graphEvents
+    })
+
+    events.push(...graphEvents)
+    blockFrom = lastSyncBlock
+  }
+
+  if (!blockTo || blockTo > blockFrom) {
+    let nodeEvents = await self.BatchEventsService.getBatchEvents({
+      fromBlock: blockFrom,
+      toBlock: blockTo,
+      type: 'NewCommitment'
+    })
+
+    if (nodeEvents && nodeEvents.length) {
+      nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
+        blockNumber,
+        transactionHash,
+        index: Number(args.index),
+        commitment: args.commitment,
+        encryptedOutput: args.encryptedOutput,
+      }))
+
+      console.log({
+        nodeEvents
+      })
+  
+      events.push(...nodeEvents)
+    }
+  }
+
+  return events.filter((el) => {
     if (!withCache && cachedEvents && cachedEvents.length) {
       return cachedEvents.find((cached) => {
         return el.transactionHash === cached.transactionHash && el.index === cached.index
@@ -113,6 +166,14 @@ const getCommitments = async ({ withCache, lastSyncBlock }) => {
         return { commitmentEvents: cachedEvents }
       }
       blockFrom = newBlockFrom > currentBlock ? currentBlock : newBlockFrom
+    } else {
+      const downloadedEvents = await downloadEvents(`commitments_${self.chainId}.json`, blockFrom)
+
+      if (downloadedEvents.events.length) {
+        cachedEvents.push(...downloadedEvents.events)
+
+        blockFrom = downloadedEvents.lastBlock
+      }
     }
 
     const commitmentEvents = await getCommitmentBatch({ blockFrom, blockTo: currentBlock, cachedEvents, withCache })

@@ -7,12 +7,6 @@ import { CommitmentEvents, NullifierEvents } from '@/services/events/@types'
 
 import { EventsPayload, DecryptedEvents, GetEventsFromTxHashParams } from './@types'
 
-import '@/assets/events.worker.js'
-import '@/assets/nullifier.worker.js'
-
-// import NWorker from '@/assets/nullifier.worker.js'
-// import EWorker from '@/assets/events.worker.js'
-
 export interface WorkerProvider {
   workerSetup: (chainId: ChainId) => void
   getCommitmentEvents: () => Promise<CommitmentEvents>
@@ -41,13 +35,8 @@ class Provider implements WorkerProvider {
 
     const basePath = `${window.location.origin}${ipfsPathPrefix}`
 
-    this.nullifierWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/_nuxt/workers/nullifier.worker.js`))
-    this.eventsWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/_nuxt/workers/events.worker.js`))
-
-    // // @ts-expect-error
-    // this.nullifierWorkers = new Array(CORES).fill('').map(() => new NWorker())
-    // // @ts-expect-error
-    // this.eventsWorkers = new Array(CORES).fill('').map(() => new EWorker())
+    this.nullifierWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/nullifier.worker.js`))
+    this.eventsWorkers = new Array(CORES).fill('').map(() => new Worker(`${basePath}/events.worker.js`))
   }
 
   public workerSetup = (chainId: ChainId) => {

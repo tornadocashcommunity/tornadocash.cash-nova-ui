@@ -5,8 +5,8 @@ import { ChainId } from '@/types'
 import { numbers } from '@/constants'
 import { isEmpty, toChecksumAddress } from '@/utilities'
 
-import { Params, Accounts } from './@types'
-import { _META, GET_ACCOUNTS, GET_REGISTERED } from './queries'
+import { Params, Accounts, Commitments, Nullifiers } from './@types'
+import { _META, GET_ACCOUNTS, GET_REGISTERED, GET_COMMITMENT, GET_NULLIFIER } from './queries'
 
 const first = 1000
 const breakLength = 900
@@ -18,7 +18,8 @@ const link = (operation: Operation) => {
 
 const CHAIN_GRAPH_URLS: { [chainId in ChainId]: string } = {
   [ChainId.BSC]: 'https://api.thegraph.com/subgraphs/name/dan1kov/bsc-tornado-pool-subgraph',
-  [ChainId.MAINNET]: 'https://api.thegraph.com/subgraphs/name/tornadocash/mainnet-tornado-pool-subgraph',
+  [ChainId.MAINNET]: 'https://tornadocash-rpc.com/subgraphs/name/tornadocash/mainnet-tornado-pool-subgraph',
+  [ChainId.XDAI]: 'https://tornadocash-rpc.com/subgraphs/name/tornadocash/gnosis-tornado-nova-subgraph',
 }
 
 const client = new ApolloClient({
@@ -27,7 +28,7 @@ const client = new ApolloClient({
 })
 
 const registryClient = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/tornadocash/tornado-relayer-registry',
+  uri: 'https://tornadocash-rpc.com/subgraphs/name/tornadocash/tornado-relayer-registry',
   cache: new InMemoryCache(),
 })
 
@@ -167,5 +168,168 @@ async function getMeta({ chainId }: Params) {
     return data._meta.block.number
   } catch {
     return undefined
+  }
+}
+
+
+export async function getCommitments({ fromBlock, chainId }: Params): Promise<{
+  results: Commitments,
+  lastSyncBlock: number
+}> {
+  const { data } = await client.query({
+    context: {
+      chainId,
+    },
+    query: gql(GET_COMMITMENT),
+    variables: { first, fromBlock },
+  })
+
+  if (!data) {
+    return {
+      results: [],
+      lastSyncBlock: data._meta.block.number
+    }
+  }
+
+  return {
+    results: data.commitments,
+    lastSyncBlock: data._meta.block.number
+  }
+}
+
+export async function getAllCommitments({ fromBlock, chainId }: Params) {
+  try {
+    let commitments: Commitments = []
+    let lastSyncBlock
+
+    while (true) {
+      let { results, lastSyncBlock: lastBlock } = await getCommitments({ fromBlock, chainId })
+
+      lastSyncBlock = lastBlock
+
+      if (isEmpty(results)) {
+        break
+      }
+
+      if (results.length < breakLength) {
+        commitments = commitments.concat(results)
+        break
+      }
+
+      const [lastEvent] = results.slice(-numbers.ONE)
+
+      results = results.filter((e) => e.blockNumber !== lastEvent.blockNumber)
+      fromBlock = Number(lastEvent.blockNumber)
+
+      commitments = commitments.concat(results)
+    }
+
+    if (!commitments) {
+      return {
+        lastSyncBlock,
+        events: [],
+      }
+    }
+
+    const data = commitments
+      .map((e) => ({
+        index: Number(e.index),
+        commitment: e.commitment,
+        blockNumber: Number(e.blockNumber),
+        encryptedOutput: e.encryptedOutput,
+        transactionHash: e.transactionHash
+      }))
+      .sort((a, b) => a.index - b.index)
+
+    const [lastEvent] = data.slice(-numbers.ONE)
+
+    return {
+      events: data,
+      lastSyncBlock: lastEvent?.blockNumber > lastSyncBlock ? lastEvent.blockNumber + numbers.ONE : lastSyncBlock,
+    }
+  } catch {
+    return {
+      lastSyncBlock: '',
+      events: [],
+    }
+  }
+}
+
+export async function getNullifiers({ fromBlock, chainId }: Params): Promise<{
+  results: Nullifiers,
+  lastSyncBlock: number
+}> {
+  const { data } = await client.query({
+    context: {
+      chainId,
+    },
+    query: gql(GET_NULLIFIER),
+    variables: { first, fromBlock },
+  })
+
+  if (!data) {
+    return {
+      results: [],
+      lastSyncBlock: data._meta.block.number
+    }
+  }
+
+  return {
+    results: data.nullifiers,
+    lastSyncBlock: data._meta.block.number
+  }
+}
+
+export async function getAllNullifiers({ fromBlock, chainId }: Params) {
+  try {
+    let nullifiers: Nullifiers = []
+    let lastSyncBlock
+
+    while (true) {
+      let { results, lastSyncBlock: lastBlock } = await getNullifiers({ fromBlock, chainId })
+
+      lastSyncBlock = lastBlock
+
+      if (isEmpty(results)) {
+        break
+      }
+
+      if (results.length < breakLength) {
+        nullifiers = nullifiers.concat(results)
+        break
+      }
+
+      const [lastEvent] = results.slice(-numbers.ONE)
+
+      results = results.filter((e) => e.blockNumber !== lastEvent.blockNumber)
+      fromBlock = Number(lastEvent.blockNumber)
+
+      nullifiers = nullifiers.concat(results)
+    }
+
+    if (!nullifiers) {
+      return {
+        lastSyncBlock,
+        events: [],
+      }
+    }
+
+    const data = nullifiers.map((e) => ({
+      nullifier: e.nullifier,
+      blockNumber: Number(e.blockNumber),
+      transactionHash: e.transactionHash
+    }))
+
+    const [lastEvent] = data.slice(-numbers.ONE)
+
+    return {
+      events: data,
+      lastSyncBlock: lastEvent?.blockNumber > lastSyncBlock ? lastEvent.blockNumber + numbers.ONE : lastSyncBlock,
+    }
+  } catch {
+    return {
+      lastSyncBlock: '',
+      events: [],
+    }
   }
 }

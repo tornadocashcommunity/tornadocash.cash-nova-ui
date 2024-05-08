@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const { isEmpty } = require('lodash')
-const { BigNumber } = require('ethers')
+import { isEmpty } from 'lodash'
+import { BigNumber, Contract } from 'ethers'
 
-const { IndexedDB } = require('../services/idb')
-const { sleep } = require('../utilities/helpers')
-const { workerEvents, numbers } = require('../constants/worker')
-const { ExtendedProvider } = require('../services/ether/ExtendedProvider')
-
-const { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST } = require('../constants/contracts')
-const { TornadoPool__factory: TornadoPoolFactory } = require('../_contracts')
+import { IndexedDB } from './services/idb'
+import { BatchEventsService } from './services/batch'
+import { getAllNullifiers } from './services/graph'
+import { ExtendedProvider } from './services/provider'
+import { POOL_CONTRACT, RPC_LIST, FALLBACK_RPC_LIST, workerEvents, numbers } from './services/constants'
+import { sleep } from './services/utilities'
+import { poolAbi } from './services/pool'
+import { downloadEvents } from './services/downloadEvents'
 
 const getProviderWithSigner = (chainId) => {
   return new ExtendedProvider(RPC_LIST[chainId], chainId, FALLBACK_RPC_LIST[chainId])
@@ -47,7 +47,12 @@ const initWorker = (chainId) => {
 }
 
 const setTornadoPool = (chainId, provider) => {
-  self.poolContract = TornadoPoolFactory.connect(POOL_CONTRACT[chainId], provider)
+  self.poolContract = new Contract(POOL_CONTRACT[chainId], poolAbi, provider)
+
+  self.BatchEventsService = new BatchEventsService({
+    provider,
+    contract: self.poolContract
+  })
 }
 
 const saveEvents = async ({ events }) => {
@@ -116,6 +121,14 @@ const getCachedEvents = async () => {
       return { blockFrom, cachedEvents }
     }
     blockFrom = newBlockFrom > currentBlock ? currentBlock : newBlockFrom
+  } else {
+    const downloadedEvents = await downloadEvents(`nullifiers_${self.chainId}.json`, blockFrom)
+
+    if (downloadedEvents.events.length) {
+      cachedEvents.push(...downloadedEvents.events)
+
+      blockFrom = downloadedEvents.lastBlock
+    }
   }
 
   return { blockFrom, cachedEvents }
@@ -123,14 +136,39 @@ const getCachedEvents = async () => {
 
 const getNullifiers = async (blockFrom) => {
   try {
-    const filter = self.poolContract.filters.NewNullifier()
-    const events = await self.poolContract.queryFilter(filter, blockFrom)
+    const events = []
+    
+    let { events: graphEvents, lastSyncBlock } = await getAllNullifiers({ fromBlock: blockFrom, chainId })
+    
+    if (lastSyncBlock) {
+      console.log({
+        graphEvents
+      })
 
-    return events.map(({ blockNumber, transactionHash, args }) => ({
-      blockNumber,
-      transactionHash,
-      nullifier: args.nullifier,
-    }))
+      events.push(...graphEvents)
+      blockFrom = lastSyncBlock
+    }
+
+    let nodeEvents = await self.BatchEventsService.getBatchEvents({
+      fromBlock: blockFrom,
+      type: 'NewNullifier'
+    })
+    
+    if (nodeEvents && nodeEvents.length) {
+      nodeEvents = nodeEvents.map(({ blockNumber, transactionHash, args }) => ({
+        blockNumber,
+        transactionHash,
+        nullifier: args.nullifier,
+      }))
+
+      console.log({
+        nodeEvents
+      })
+      
+      events.push(...nodeEvents)
+    }
+    
+    return events
   } catch (err) {
     console.error('getNullifiers', err.message)
     return []
