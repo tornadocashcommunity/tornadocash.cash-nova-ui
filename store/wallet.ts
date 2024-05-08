@@ -19,17 +19,6 @@ export const actions: ActionTree<WalletState, RootState> = {
     }
   },
 
-  async checkSanction({ getters }, address) {
-    const contract = getSanctionList(getters.dependencies.l1ChainId)
-
-    const isSanctioned = await contract.callStatic.isSanctioned(address)
-    if (isSanctioned) {
-      window.onbeforeunload = null
-      // ToDo add type
-      // @ts-expect-error
-      window.location = 'https://twitter.com/TornadoCash/status/1514904975037669386'
-    }
-  },
   checkAppNetwork({ commit }, network) {
     try {
       // TODO create a selector for active network
